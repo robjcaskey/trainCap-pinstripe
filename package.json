@@ -2,7 +2,7 @@
   "name": "trainCap-pinstripe",
   "version": "0.0.0",
   "description": "experimental model train management software",
-  "main": "index.js",
+  "main": "trainCap-pinstripe.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
