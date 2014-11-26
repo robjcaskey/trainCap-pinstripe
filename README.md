@@ -1,4 +1,4 @@
 trainCap-pinstripe
 ==================
 
-web gui portion of trainCap
+brains and web gui portion of trainCap
