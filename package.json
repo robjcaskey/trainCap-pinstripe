@@ -27,6 +27,7 @@
   "homepage": "https://github.com/robjcaskey/trainCap-pinstripe",
   "dependencies": {
     "express": "^4.10.4",
-    "socket.io": "^1.2.1"
+    "socket.io": "^1.2.1",
+    "jade": "~1.7.0"
   }
 }

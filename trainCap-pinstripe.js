@@ -1,7 +1,7 @@
 var express = require('express')
 var app = express()
 app.get('/', function(rq, res) {
-  res.send("hello world!")
+  res.render('trainControls.jade', { layout: false });
 });
-var server = app.listen(3000, function() {
+var server = app.listen(8080, function() {
 });
