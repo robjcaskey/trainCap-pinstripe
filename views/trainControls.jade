@@ -3,6 +3,30 @@ html(lang='en')
   head
     title= title
     script(src="bower_components/jquery/dist/jquery.min.js")
-  body
-    p
-      | hello world
+    meta(charset="utf-8")
+    meta(http-equiv="X-UA-Compatible",content="IE=edge")
+    meta(name="viewport",content="width=device-width, initial-scale=1")
+    meta(name="description",content="")
+    meta(name="author",content="")
+    link(rel="icon",href="bower_components/bootstrap/dist/favicon.ico")
+    title {{title}}
+
+    link(href="bower_components/bootstrap/dist/css/bootstrap.min.css",rel="stylesheet")
+
+    link(href="jumbotron-narrow.css",rel="stylesheet")
+
+    script(src="bower_components/bootstrap/dist/assets/js/ie-emulation-modes-warning.js")
+
+    link(rel="stylesheet",href="bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css")
+    script(src="bower_components/jquery-ui/jquery-ui.min.js")
+    script(src="js/debounce.js")
+    script(src="bower_components/jqueryui-touch-punch/jquery.ui.touch-punch.min.js")
+    script(src="js/trainControl.js")
+  body(style='background-image:url(trainControlImages/background_wood.jpg);background-repeat:repeat;background-color:#996633')
+    .container
+      .content
+        #trainBar
+        #someSpeed
+        #someJoystick
+        #dbgConsole(style='height:300px;background-color:yellow;overflow-y:scroll;display:none')
+    script src="bower_components/bootstrap/dist/assets/js/ie10-viewport-bug-workaround.js"></script>
