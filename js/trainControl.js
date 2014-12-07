@@ -98,9 +98,9 @@ function SpeedGauge(speedGaugeTgt, train) {
 	$(container).append(gaugeImg)
 	$(container).append(ndlImg)
 	$(speedGaugeTgt).append(container);
-	document.addEventListener('setSpeed', $.throttle(200, false, function(e) {
+	socket.on('setSpeed', $.throttle(200, false, function(data) {
 		var deg_span = 270
-		var chg = (e.speed/100)*deg_span
+		var chg = (data.speed/100)*deg_span
 		var x = 42+chg
 		var deg_txt = "rotate("+x+"deg)"
 		$(ndlImg).css({
@@ -109,7 +109,7 @@ function SpeedGauge(speedGaugeTgt, train) {
 			'-webkit-transform':deg_txt,	
 			'transition':'.3s linear'
 		})
-	}), false);
+	}));
 
 }
 /*
@@ -145,13 +145,7 @@ function Train() {
 	this.speed = 0
 	this.momentumEnabled = false;
 	this.requestedSpeed = 0;
-	this.setSpeed = function(speed) {
-		this.speed = speed;
-		var e = new Event('setSpeed');
-		e.train = this
-		e.speed = speed
-		document.dispatchEvent(e)
-	}
+/*
 	this.trainBrain = setInterval(function(train) {
 		return function() {
 			if(train.momentumEnabled) {
@@ -164,23 +158,21 @@ function Train() {
 					else {
 						new_speed = Math.max(train.speed - .5, train.requestedSpeed)
 					}
-					train.setSpeed(new_speed);
 				}
 			}
 		}
 	}(this), 250)
+*/
 	this.requestSpeed = function(speed) {
 		var e = new Event('requestSpeed');
 		e.train = this
 		e.speed = speed
 		document.dispatchEvent(e)
 		this.requestedSpeed = speed
-		if(!this.momentumEnabled) {
-			this.setSpeed(speed)
-		}
+		socket.emit('requestSpeed', {speed:speed})
 	}
-	document.addEventListener('setSpeed', $.throttle(250, false, function(e) {
-		dbgConsoleLog("sending speed of "+e.speed)
+	document.addEventListener('requestSpeed', $.throttle(250, false, function(e) {
+		dbgConsoleLog("requesting speed of "+e.speed)
 	}), false);
 }
 
@@ -196,7 +188,7 @@ function makeDivider(tgtDiv) {
 	})
 	$(tgtDiv).append(hr)
 }
-function makePushButton(tgtDiv, lblTxt) {
+function makePushButton(tgtDiv, lblTxt, cb) {
 	this.active = false;	
 	this.buttonImg = $("<img>")
 	var onSrc = "trainControlImages/buttonPressed.png";
@@ -213,6 +205,7 @@ function makePushButton(tgtDiv, lblTxt) {
 					if(pushButton.active) {
 						pushButton.active = false;
 						pushButton.buttonImg.attr('src', offSrc)
+						cb()
 					}
 				}, 300);
 			}
@@ -306,19 +299,27 @@ $(document).ready(function() {
   var momentumSwitch = new ToggleSwitch($("#trainBar"),"Momtm")
   momentumSwitch.onToggle = function(toggleSwitch, train) {
     return function() {
-      train.momentumEnabled = toggleSwitch.active
+      socket.emit('toggleF', {'desc':'momentum'})
+//      train.momentumEnabled = toggleSwitch.active
     }
   }(momentumSwitch, someTrain)
   new ToggleSwitch($("#trainBar"),"Lights")
-  new makePushButton($("#trainBar"),"Horn")
-  new makePushButton($("#trainBar"),"Engine")
+  new makePushButton($("#trainBar"),"Horn", function() {
+    socket.emit("activateF",{desc:"horn"})
+  })
+  new makePushButton($("#trainBar"),"Engine", function() {
+    socket.emit("activateF",{desc:"engine"})
+  })
   var speedGauge = new SpeedGauge($("#trainBar"), someTrain);
-  new makePushButton($("#trainBar"),"Brake")
-  new makePushButton($("#trainBar"),"")
+  new makePushButton($("#trainBar"),"Brake", function() {
+  })
+  new makePushButton($("#trainBar"),"", function() {
+  })
   new makeDivider($("#trainBar"));
-  new makePushButton($("#trainBar"),"Dbg")
-  new makePushButton($("#trainBar"),"")
-  new makePushButton($("#trainBar"),"")
-  new makePushButton($("#trainBar"),"")
+  new makePushButton($("#trainBar"),"Dbg", function() {
+  })
+  new makePushButton($("#trainBar"),"", function() {})
+  new makePushButton($("#trainBar"),"", function() {})
+  new makePushButton($("#trainBar"),"", function() {})
 
 });
