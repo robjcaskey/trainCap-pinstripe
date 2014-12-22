@@ -94,4 +94,9 @@ app.use('/trainControlImages', express.static(__dirname + '/trainControlImages')
 app.get('/', function(req, res) {
   res.render('trainControls.jade', { layout: false });
 });
+app.get('/jsonAbout', function(req, res) {
+  res.jsonp({
+    serviceName:"trainCap"
+  })
+});
 server.listen(8080)
