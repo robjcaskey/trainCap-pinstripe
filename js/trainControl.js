@@ -295,7 +295,6 @@ $(document).ready(function() {
   var anotherTrain = makeTrain();
   makeJoystick($("#anotherJoystick"), anotherSpeedLed, anotherTrain)
 */
-  new ToggleSwitch($("#trainBar"),"Reverse")
   var momentumSwitch = new ToggleSwitch($("#trainBar"),"Momtm")
   momentumSwitch.onToggle = function(toggleSwitch, train) {
     return function() {
@@ -303,10 +302,34 @@ $(document).ready(function() {
 //      train.momentumEnabled = toggleSwitch.active
     }
   }(momentumSwitch, someTrain)
-  new ToggleSwitch($("#trainBar"),"Lights")
-  new makePushButton($("#trainBar"),"Horn", function() {
-    socket.emit("activateF",{desc:"horn"})
-  })
+ 
+  function makeSimpleToggle(train, lbl, flagName) {
+    var toggle_switch = new ToggleSwitch($("#trainBar"),lbl)
+    toggle_switch.onToggle = function(toggleSwitch, train) {
+      return function() {
+	if(toggleSwitch.active) {
+	  socket.emit("activateF",{desc:flagName})
+	}
+	else {
+	  socket.emit("deactivateF",{desc:flagName})
+	}
+      }
+    }(toggle_switch, someTrain)
+  }
+
+  makeSimpleToggle(someTrain, "Reverse", "reverse")
+  makeSimpleToggle(someTrain, "Lights", "fl")
+  makeSimpleToggle(someTrain, "Bell", "f1")
+  makeSimpleToggle(someTrain, "Whistle", "f2")
+/*
+  makeSimpleToggle(someTrain, "Toot", "f3")
+  makeSimpleToggle(someTrain, "Hiss", "f4")
+  makeSimpleToggle(someTrain, "NA", "f5")
+  makeSimpleToggle(someTrain, "Smoke", "f6")
+  makeSimpleToggle(someTrain, "Dimmer", "f7")
+*/
+  makeSimpleToggle(someTrain, "Mute", "f8")
+
   new makePushButton($("#trainBar"),"Engine", function() {
     socket.emit("activateF",{desc:"engine"})
   })
