@@ -294,6 +294,18 @@ function makeLabel(tgtDiv, lblTxt) {
 }
 
 $(document).ready(function() {
+  $("#setupWirelessNetworkSave").on('click', function(event) {
+    var post_data = {
+      essid:$("#setupWirelessNetworkEssid").val(),
+      password:$("#setupWirelessNetworkPassword").val()
+    }
+    $.post("/addWpaSecret", post_data, function(result) {});
+  });
+  $("#setupUpgradeSave").on('click', function(event) {
+    socket.emit("doUpgrade",{})
+    $("#doingUpgradeModal").modal('show');
+  });
+
   var someTrain = new Train();
   makeJoystick($("#someJoystick"), someTrain)
 /*
@@ -327,6 +339,7 @@ $(document).ready(function() {
   makeSimpleToggle(someTrain, "Lights", "fl")
   makeSimpleToggle(someTrain, "Bell", "f1")
   makeSimpleToggle(someTrain, "Whistle", "f2")
+  makeSimpleToggle(someTrain, "Mute", "f8")
 /*
   makeSimpleToggle(someTrain, "Toot", "f3")
   makeSimpleToggle(someTrain, "Hiss", "f4")
@@ -334,33 +347,13 @@ $(document).ready(function() {
   makeSimpleToggle(someTrain, "Smoke", "f6")
   makeSimpleToggle(someTrain, "Dimmer", "f7")
 */
-  makeSimpleToggle(someTrain, "Mute", "f8")
-
-  new makePushButton($("#trainBar"),"Engine", function() {
-    socket.emit("activateF",{desc:"engine"})
-  })
-  var speedGauge = new SpeedGauge($("#trainBar"), someTrain);
-  new makePushButton($("#trainBar"),"Brake", function() {
-  })
-  new makePushButton($("#trainBar"),"", function() {
+  new makePushButton($("#trainBar"),"Halt", function() {
+    socket.emit("requestSpeed",{speed:"1"})
   })
   new makeDivider($("#trainBar"));
   new makePushButton($("#trainBar"),"Setup", function() {
     $("#setupModal").modal('show');
   })
-  new makePushButton($("#trainBar"),"", function() {})
-  new makePushButton($("#trainBar"),"", function() {})
-
-  $("#setupWirelessNetworkSave").on('click', function(event) {
-    var post_data = {
-      essid:$("#setupWirelessNetworkEssid").val(),
-      password:$("#setupWirelessNetworkPassword").val()
-    }
-    $.post("/addWpaSecret", post_data, function(result) {});
-  });
-  $("#setupUpgradeSave").on('click', function(event) {
-    socket.emit("doUpgrade",{})
-    $("#doingUpgradeModal").modal('show');
-  });
+  var speedGauge = new SpeedGauge($("#trainBar"), someTrain);
 
 });
