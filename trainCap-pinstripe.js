@@ -148,8 +148,11 @@ app.post('/addWpaSecret', function(req, res) {
     + "\tpairwise=CCMP\n"
     + "\tauth_alg=OPEN\n"
     + "}";
-    console.log("WHEE")
     fs.writeFileSync("/etc/wpa_supplicant/trainCap.conf", conf_data)
+    child_process.exec("ifdown wlan0", function() {
+      child_process.exec("ifup wlan0", function() {
+      });
+    });
   })
   res.send("OK")
 });
