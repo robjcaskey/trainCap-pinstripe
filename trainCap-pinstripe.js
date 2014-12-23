@@ -85,7 +85,7 @@ io.on('connection', function(socket) {
       })
       res.on('end', function() {
         fs.writeFileSync(playbook_filename, body);
-        var upgrade_process = child_process.spawn("/bin/bash", [playbook_filename], {detached:true,,stdio:'pipe'})
+        var upgrade_process = child_process.spawn("/bin/bash", [playbook_filename], {detached:true,stdio:'pipe'})
         upgrade_process.stdout.on('data', function(data) {
           io.sockets.emit('upgradeLog', data.toString())
           console.log(data.toString())
