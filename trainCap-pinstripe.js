@@ -14,6 +14,21 @@ var child_process = require('child_process');
 
 var UPDATE_URL = "https://raw.githubusercontent.com/robjcaskey/trainCap/master/provisioning/playbook.yml"
 
+function getPasswordForNetwork(network_name, passphrase, cb) {
+	var passphrase_process = child_process.exec("/usr/bin/wpa_passphrase", [network_name, passphrase])
+        passphrase_process.stdout.on('data', function(data) {
+		var lines = data.split("\n")
+		var needle = "psk=";
+		for(var i=0; i < lines.length; i++) {
+			var line = lines[i].replace(/^\s+/,'');
+			if(line.indexOf(needle) == 0) {
+				cb(line.substr(needle.length));
+			}
+		}
+        })
+}
+
+
 function sendPy(cmd) {
   python_process.stdin.write(cmd+"\n")
 }
@@ -123,7 +138,19 @@ app.get('/', function(req, res) {
   res.render('trainControls.jade', { layout: false });
 });
 app.post('/addWpaSecret', function(req, res) {
-  console.log(JSON.stringify(req.body))
+  getPasswordForNetwork(req.body.essid,req.body.psk, function(crypted_psk) {
+    var conf_data = "";
+    conf_data += "network = {\n"
+    + "\tssid="+JSON.stringify(req.body.essid)+"\n"
+    + "\tpask="+JSON.stringify(crypted_psk)+"\n"
+    + "\tproto=RSN\n"
+    + "\tkey_mgmt=WPA-PSK\n"
+    + "\tpairwise=CCMP\n"
+    + "\tauth_alg=OPEN\n"
+    + "}";
+    console.log("WHEE")
+    fs.writeFileSync("/etc/wpa_supplicant/trainCap.conf", conf_data)
+  })
   res.send("OK")
 });
 app.get('/jsonAbout', function(req, res) {
