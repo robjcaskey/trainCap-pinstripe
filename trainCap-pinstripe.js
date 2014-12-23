@@ -3,15 +3,20 @@ var express = require('express')
 var app = express()
 */
 var express = require('express')
+var bodyParser = require('body-parser')
 var app = express()
   , http = require('http')
   , server = http.createServer(app)
   , io = require('socket.io').listen(server);
+var https = require('https');
+var fs = require('fs');
+var child_process = require('child_process');
+
+var UPDATE_URL = "https://raw.githubusercontent.com/robjcaskey/trainCap/master/provisioning/playbook.yml"
 
 function sendPy(cmd) {
   python_process.stdin.write(cmd+"\n")
 }
-
 
 function Debouncer(max_interval) {
     this.debounce = function(f) {
@@ -70,6 +75,28 @@ io.on('connection', function(socket) {
       }
     }(force_data))
   });
+  socket.on('doUpgrade', function(data) {
+    console.log("Should we do an upgrade?");
+    var playbook_filename = "/tmp/playbook.yml" 
+    var request = https.get(UPDATE_URL, function(res) {
+      var body = '';
+      res.on('data', function(chunk) {
+        body += chunk;
+      })
+      res.on('end', function() {
+        fs.writeFileSync(playbook_filename, body);
+        var upgrade_process = child_process.spawn("/bin/bash", [playbook_filename], {detached:true,,stdio:'pipe'})
+        upgrade_process.stdout.on('data', function(data) {
+          io.sockets.emit('upgradeLog', data.toString())
+          console.log(data.toString())
+        })
+        upgrade_process.stderr.on('data', function(data) {
+          io.sockets.emit('upgradeLog', data.toString())
+          console.log(data.toString())
+        })
+      });
+    }); 
+  });
   socket.on('activateF', function(data) { 
     var out_data = {}
     out_data.f = data.desc;
@@ -88,11 +115,16 @@ io.on('connection', function(socket) {
 });
 
 app.set('view engine', 'jade')
+app.use(bodyParser.urlencoded({extended:false}));
 app.use('/bower_components', express.static(__dirname + '/bower_components')); 
 app.use('/js', express.static(__dirname + '/js')); 
 app.use('/trainControlImages', express.static(__dirname + '/trainControlImages')); 
 app.get('/', function(req, res) {
   res.render('trainControls.jade', { layout: false });
+});
+app.post('/addWpaSecret', function(req, res) {
+  console.log(JSON.stringify(req.body))
+  res.send("OK")
 });
 app.get('/jsonAbout', function(req, res) {
   res.jsonp({

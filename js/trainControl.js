@@ -110,6 +110,12 @@ function SpeedGauge(speedGaugeTgt, train) {
 			'transition':'.3s linear'
 		})
 	}));
+	socket.on('upgradeLog', function(data) {
+		$("#upgradeLog")
+		  .append("<pre>")
+                  .text(data)
+		$("#upgradeLog").scrollTop($("#upgradeLog").prop("scrollHeight"));
+	});
 
 }
 /*
@@ -339,10 +345,22 @@ $(document).ready(function() {
   new makePushButton($("#trainBar"),"", function() {
   })
   new makeDivider($("#trainBar"));
-  new makePushButton($("#trainBar"),"Dbg", function() {
+  new makePushButton($("#trainBar"),"Setup", function() {
+    $("#setupModal").modal('show');
   })
   new makePushButton($("#trainBar"),"", function() {})
   new makePushButton($("#trainBar"),"", function() {})
-  new makePushButton($("#trainBar"),"", function() {})
+
+  $("#setupWirelessNetworkSave").on('click', function(event) {
+    var post_data = {
+      essid:$("#setupWirelessNetworkEssid").val(),
+      password:$("#setupWirelessNetworkPassword").val()
+    }
+    $.post("/addWpaSecret", post_data, function(result) {});
+  });
+  $("#setupUpgradeSave").on('click', function(event) {
+    socket.emit("doUpgrade",{})
+    $("#doingUpgradeModal").modal('show');
+  });
 
 });
