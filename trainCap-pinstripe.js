@@ -142,13 +142,9 @@ app.post('/addWpaSecret', function(req, res) {
     var conf_data = "";
     conf_data += "network = {\n"
     + "\tssid="+JSON.stringify(req.body.essid)+"\n"
-    + "\tpask="+JSON.stringify(crypted_psk)+"\n"
-    + "\tproto=RSN\n"
-    + "\tkey_mgmt=WPA-PSK\n"
-    + "\tpairwise=CCMP\n"
-    + "\tauth_alg=OPEN\n"
+    + "\tpsk="+JSON.stringify(crypted_psk)+"\n"
     + "}";
-    fs.writeFileSync("/etc/wpa_supplicant/trainCap.conf", conf_data)
+    fs.appendFileSync("/etc/wpa_supplicant/wpa_supplicant.conf", conf_data)
     child_process.exec("ifdown wlan0", function() {
       child_process.exec("ifup wlan0", function() {
       });
